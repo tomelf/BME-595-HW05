@@ -28,7 +28,8 @@ class Img2Num(nn.Module):
         x = F.relu(x)
         x = F.max_pool2d(x, 2, 2)
         x = self.fc1(x)
-        x = x.squeeze(2).squeeze(2)
+        (N,C,H,W) = x.size()
+        x = x.view(N,-1)
         x = F.relu(x)
         x = self.fc2(x)
         x = F.relu(x)
@@ -50,7 +51,10 @@ class Img2Num(nn.Module):
                          batch_size=batch_size,
                          shuffle=True)
 
-        epoch = 1
+        epoch = 20
+        if epoch > 1:
+            print("== Start training for {0:d} epochs".format(epoch))
+
         for i in range(epoch):
             # training
             batch_idx = 0
@@ -64,8 +68,11 @@ class Img2Num(nn.Module):
                 self.optimizer.step()
                 if (batch_idx+1)% 100 == 0:
                     # print '==>>> batch index: {}, train loss: {:.6f}'.format(batch_idx, loss.data[0])
-                    print '==>>> batch index: {}'.format(batch_idx+1)
-            print '==>>> batch index: {}'.format(batch_idx+1)
+                    print '==>>> batch index: {}/{}'.format(batch_idx+1, len(train_loader))
+            print '==>>> batch index: {}/{}'.format(batch_idx+1, len(train_loader))
+
+            if epoch > 1:
+                print("-- Finish epoch {0:d}".format(i+1))
 
     @staticmethod
     def oneHot(target, num_classes):
