@@ -39,7 +39,8 @@ class Img2Num(nn.Module):
 
     def train(self):
         self.loss_function = nn.MSELoss()
-        self.optimizer = optim.SGD(self.parameters(), lr=0.2)
+        # self.optimizer = optim.SGD(self.parameters(), lr=0.2)
+        self.optimizer = optim.Adadelta(self.parameters())
         # Load MNIST
         root = 'torchvision/mnist/'
         download = True
@@ -51,7 +52,7 @@ class Img2Num(nn.Module):
                          batch_size=batch_size,
                          shuffle=True)
 
-        epoch = 20
+        epoch = 1
         if epoch > 1:
             print("== Start training for {0:d} epochs".format(epoch))
 

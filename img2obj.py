@@ -13,7 +13,7 @@ class Img2Obj(nn.Module):
     def __init__(self):
         super(Img2Obj, self).__init__()
 
-        useCIFAR10 = True
+        useCIFAR10 = False # True: useCIFAR10, False: useCIFAR100
         if useCIFAR10:
             # settings for CIFAR-10
             self.num_classes = 10
@@ -99,6 +99,7 @@ class Img2Obj(nn.Module):
         # vc.set(4, 320); # CV_CAP_PROP_FRAME_HEIGHT
         vc.set(5, 1); # CV_CAP_PROP_FPS
         rval, frame = vc.read()
+        last_label = ""
         while True:
             if frame is not None:
                 cv2.imshow("OpenCVCam", frame)
@@ -115,14 +116,17 @@ class Img2Obj(nn.Module):
             x_pred = self.forward(Variable(img))
             x_pred = np.argmax(x_pred.data.numpy(), 1)
             x_pred_label = self.class_labels[int(x_pred)]
-            print x_pred_label
+            if last_label != x_pred_label:
+                last_label = x_pred_label
+                print x_pred_label
 
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
 
     def train(self):
         self.loss_function = nn.MSELoss()
-        self.optimizer = optim.SGD(self.parameters(), lr=0.2)
+        # self.optimizer = optim.SGD(self.parameters(), lr=0.2)
+        self.optimizer = optim.Adadelta(self.parameters())
         # Load CIFAR
         download = False
         trans = transforms.Compose([transforms.ToTensor()])
